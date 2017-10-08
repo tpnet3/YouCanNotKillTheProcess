@@ -6,15 +6,19 @@
 #include <Aclapi.h>
 #include <iostream>
 
+/*
+관리자 권한이 아닌 환경에서 프로세스를 종료할 수 없도록 만듭니다.
+윈도우 10은 기본적으로 관리자 권한으로 작업관리자가 실행되도록 설계되었습니다.
+*/
 DWORD ProtectProcess(void)
 {
 	HANDLE hProcess = GetCurrentProcess();
 	PACL pEmptyDacl;
 	DWORD dwErr;
 
-	// using malloc guarantees proper alignment
 	pEmptyDacl = (PACL)malloc(sizeof(ACL));
 
+	// 빈 DACL 을 만들면, 모든 액세스가 거부됩니다.
 	if (!InitializeAcl(pEmptyDacl, sizeof(ACL), ACL_REVISION))
 	{
 		dwErr = GetLastError();
@@ -31,8 +35,12 @@ DWORD ProtectProcess(void)
 
 int main()
 {
-	int value;
+	std::cout << "프로세스 액세스를 거부하도록 설정합니다..." << std::endl;
 	std::cout << ProtectProcess() << std::endl;
-	std::cin >> value;
+	std::cout << "ProtectProcess() 실행됨." << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "프로세스 종료를 대기합니다." << std::endl;
+	std::cin.get();
     return 0;
 }
